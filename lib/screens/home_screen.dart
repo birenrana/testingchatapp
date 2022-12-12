@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:custom_chat/custom_chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -15,14 +16,41 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, dynamic>? userMap;
   bool isLoading = false;
-  final TextEditingController _search = TextEditingController(text: 'parth@gmail.com');
+  final TextEditingController _search =
+      TextEditingController(text: 'parth@gmail.com');
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
+    FlutterChat.setOnlineStatus(
+        status: "Online",
+        usersCollectionName: 'user',
+        currentUserId: _auth.currentUser!.uid.toString());
+  }
+
+  // void setStatus(String status) async {
+  //   await _firestore.collection('user').doc(_auth.currentUser!.uid).update({
+  //     "status": status,
+  //   });
+  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // online
+      FlutterChat.setOnlineStatus(
+          status: "Online",
+          usersCollectionName: 'user',
+          currentUserId: _auth.currentUser!.uid.toString());
+    } else {
+      // offline
+      FlutterChat.setOnlineStatus(
+          status: "Offline",
+          usersCollectionName: 'user',
+          currentUserId: _auth.currentUser!.uid.toString());
+    }
   }
 
   String chatRoomId(String user1, String user2) {

@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 class ChatRoom extends StatefulWidget {
   final Map<String, dynamic> userMap;
@@ -106,10 +105,10 @@ class _ChatRoomState extends State<ChatRoom> {
               return Column(
                 children: [
                   Text(widget.userMap['name']),
-                  // Text(
-                  //   snapshot.data!['status'],
-                  //   style: const TextStyle(fontSize: 14),
-                  // ),
+                  Text(
+                    snapshot.data!['status'],
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ],
               );
             } else {
@@ -194,7 +193,7 @@ class _ChatRoomState extends State<ChatRoom> {
               msgTextController: message,
               type: 'text',
               time: FieldValue.serverTimestamp(),
-             // isSendButtonEnable: message.text.isNotEmpty,
+              // isSendButtonEnable: message.text.isNotEmpty,
               context: context),
           // Visibility(
           //     visible: emojiShowing,
