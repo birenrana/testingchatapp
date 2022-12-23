@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
@@ -94,7 +93,9 @@ class _ChatRoomState extends State<ChatRoom> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade300,
       appBar: AppBar(
+        backgroundColor: Colors.teal,
         title: StreamBuilder<DocumentSnapshot>(
           stream: _firestore
               .collection("user")
@@ -193,6 +194,7 @@ class _ChatRoomState extends State<ChatRoom> {
               msgTextController: message,
               type: 'text',
               time: FieldValue.serverTimestamp(),
+              //   isSendButtonEnable: true,
               // isSendButtonEnable: message.text.isNotEmpty,
               context: context),
           // Visibility(
@@ -361,40 +363,45 @@ class _ChatRoomState extends State<ChatRoom> {
                               });
                         },
                         child: FlutterChat.rightChatBubble(
-                            message: map['message'])),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          map['time'] != null
-                              ? Text(DateFormat('hh:mm')
-                                  .format(map['time'].toDate()))
-                              : Container(),
-                          const SizedBox(
-                            width: 3,
-                          ),
-                          map['seen']
-                              ? const Icon(
-                                  Icons.done_all,
-                                  color: Colors.blue,
-                                  size: 18,
-                                )
-                              : const Icon(
-                                  Icons.done,
-                                  color: Colors.grey,
-                                  size: 18,
-                                )
-                        ],
-                      ),
-                    )
+                            message: map['message'],
+                            userDetailsMap: map,
+                           )),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(right: 8.0),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.end,
+                    //     children: [
+                    //       map['time'] != null
+                    //           ? Text(DateFormat('hh:mm')
+                    //               .format(map['time'].toDate()))
+                    //           : Container(),
+                    //       const SizedBox(
+                    //         width: 3,
+                    //       ),
+                    //       map['seen']
+                    //           ? const Icon(
+                    //               Icons.done_all,
+                    //               color: Colors.blue,
+                    //               size: 18,
+                    //             )
+                    //           : const Icon(
+                    //               Icons.done,
+                    //               color: Colors.grey,
+                    //               size: 18,
+                    //             )
+                    //     ],
+                    //   ),
+                    // )
                   ],
                 )
                 //RightChatBubble(message: map['message']),
                 )
             : Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: FlutterChat.leftChatBubble(message: map['message']))
+                child: FlutterChat.leftChatBubble(
+                    message: map['message'],
+                    userDetailsMap: map,
+                  ))
         /*Container(
             width: size.width,
             alignment: map['sendby'] == _auth.currentUser!.displayName
@@ -479,74 +486,75 @@ class _ChatRoomState extends State<ChatRoom> {
             );
   }
 
-  // Future updateChatList(
-  //     {required String chatRoomId,
-  //     required String chatRoomCollectionName,
-  //     required String chatsCollectionName}) async {
-  //   try {
-  //     var collection = FirebaseFirestore.instance
-  //         .collection(chatRoomCollectionName)
-  //         .doc(chatRoomId)
-  //         .collection(chatsCollectionName);
-  //     var querySnapshots = await collection.get();
-  //
-  //     for (var doc in querySnapshots.docs) {
-  //       if (doc['sendby'] != _auth.currentUser!.displayName) {
-  //         await FirebaseFirestore.instance
-  //             .collection(chatRoomCollectionName)
-  //             .doc(chatRoomId)
-  //             .collection(chatsCollectionName)
-  //             .doc(doc.id)
-  //             .update({"seen": true});
-  //       }
-  //     }
-  //     return true;
-  //   } catch (e) {
-  //     print("Exception: $e");
-  //     return null;
-  //   }
-  // }
-  // Widget videoFrame(size,context,map,url){
-  //   VideoPlayerController _controller;
-  //   _controller = VideoPlayerController.network( map['mediaUrl'])
-  //     ..initialize().then((_) {
-  //       setState(() {});  //when your thumbnail will show.
-  //     });
-  //   return InkWell(
-  //     onTap: () => Navigator.of(context).push(
-  //       MaterialPageRoute(
-  //         builder: (_) => ShowVideo(
-  //           videoUrl: map['mediaUrl'],
-  //         ),
-  //       ),
-  //     ),
-  //     child: Container(
-  //       height: size.height / 2.5,
-  //       width: size.width / 2,
-  //       decoration: BoxDecoration(border: Border.all()),
-  //       alignment: map['message'] != "" ? null : Alignment.center,
-  //       child: map['mediaUrl'] != ""
-  //           ? Stack(
-  //         children: [
-  //           VideoPlayer(_controller),
-  //           const Center(
-  //             child: Icon(Icons.play_arrow),
-  //           ),
-  //         ],
-  //       )
-  //       // Image.network(
-  //       // map['mediaUrl'],
-  //       // fit: BoxFit.cover,
-  //       // )
-  //           : const CircularProgressIndicator(),
-  //     ),
-  //   );
-  // }
+// Future updateChatList(
+//     {required String chatRoomId,
+//     required String chatRoomCollectionName,
+//     required String chatsCollectionName}) async {
+//   try {
+//     var collection = FirebaseFirestore.instance
+//         .collection(chatRoomCollectionName)
+//         .doc(chatRoomId)
+//         .collection(chatsCollectionName);
+//     var querySnapshots = await collection.get();
+//
+//     for (var doc in querySnapshots.docs) {
+//       if (doc['sendby'] != _auth.currentUser!.displayName) {
+//         await FirebaseFirestore.instance
+//             .collection(chatRoomCollectionName)
+//             .doc(chatRoomId)
+//             .collection(chatsCollectionName)
+//             .doc(doc.id)
+//             .update({"seen": true});
+//       }
+//     }
+//     return true;
+//   } catch (e) {
+//     print("Exception: $e");
+//     return null;
+//   }
+// }
+// Widget videoFrame(size,context,map,url){
+//   VideoPlayerController _controller;
+//   _controller = VideoPlayerController.network( map['mediaUrl'])
+//     ..initialize().then((_) {
+//       setState(() {});  //when your thumbnail will show.
+//     });
+//   return InkWell(
+//     onTap: () => Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (_) => ShowVideo(
+//           videoUrl: map['mediaUrl'],
+//         ),
+//       ),
+//     ),
+//     child: Container(
+//       height: size.height / 2.5,
+//       width: size.width / 2,
+//       decoration: BoxDecoration(border: Border.all()),
+//       alignment: map['message'] != "" ? null : Alignment.center,
+//       child: map['mediaUrl'] != ""
+//           ? Stack(
+//         children: [
+//           VideoPlayer(_controller),
+//           const Center(
+//             child: Icon(Icons.play_arrow),
+//           ),
+//         ],
+//       )
+//       // Image.network(
+//       // map['mediaUrl'],
+//       // fit: BoxFit.cover,
+//       // )
+//           : const CircularProgressIndicator(),
+//     ),
+//   );
+// }
 
 }
 
 class videoFrame extends StatefulWidget {
   Map? map;
+
   videoFrame(this.map, {Key? key}) : super(key: key);
 
   @override

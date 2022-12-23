@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_chat/custom_chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import '../group_chats/group_chat_screen.dart';
 import '../model/models.dart';
 import 'screens.dart';
 
@@ -56,20 +58,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String chatRoomId(String user1, String user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
         user2.toLowerCase().codeUnits[0]) {
-      return "$user1$user2";
+      return "${user1}_$user2";
     } else {
-      return "$user2$user1";
+      return "${user2}_$user1";
     }
   }
 
   void onSearch() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
     setState(() {
       isLoading = true;
     });
-
-    await firestore
+    firestore
         .collection('user')
         .where("email", isEqualTo: _search.text)
         .get()
@@ -78,7 +78,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         userMap = value.docs[0].data();
         isLoading = false;
       });
-      print(userMap);
+      if (kDebugMode) {
+        print(userMap);
+      }
+    }).catchError((v) {
+      Fluttertoast.showToast(
+          msg: "User Not Found",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -139,8 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ? ListTile(
                         onTap: () {
                           String roomId = chatRoomId(
-                              _auth.currentUser!.displayName!,
-                              userMap!['name']);
+                              _auth.currentUser!.uid, userMap!['uid']);
 
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -167,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     : Container(),
               ],
             ),
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.group),
-      //   onPressed: () => Navigator.of(context).push(
-      //     MaterialPageRoute(
-      //       builder: (_) => GroupChatHomeScreen(),
-      //     ),
-      //   ),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.group),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const GroupChatHomeScreen(),
+          ),
+        ),
+      ),
     );
   }
 }
